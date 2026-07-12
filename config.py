@@ -25,3 +25,6 @@ OUTPUT_FOLDER = "recordings/"
 
 # مسیر فایل ویدئو برای تست
 VIDEO_PATH = "videos/test.mp4"
+
+# مسیر ذخیره اسکرین‌شات‌ها
+SCREENSHOT_FOLDER = "screenshots/"

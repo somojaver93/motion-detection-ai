@@ -1,250 +1,133 @@
 # ==========================================
-# اجرای پروژه با فایل ویدئویی (Video Mode)
+# Import Libraries
 # ==========================================
 
-
-# کتابخانه OpenCV برای پردازش تصویر
 import cv2
 
+from config import (
+    CAMERA_INDEX,
+    OUTPUT_FOLDER,
+    MIN_AREA
+)
 
-# فایل تنظیمات پروژه
-import config
-
-
-# کلاس تشخیص حرکت
 from src.detector import MotionDetector
-
-
-# کلاس ضبط ویدئو
 from src.recorder import VideoRecorder
 
+from utils.logger import logger
 
 
-# ------------------------------------------
-# باز کردن فایل ویدئویی
-# ------------------------------------------
+# ==========================================
+# Main Function
+# ==========================================
 
-video = cv2.VideoCapture(
-    config.VIDEO_PATH
-)
+def main():
 
-
-
-# بررسی باز شدن فایل
-if not video.isOpened():
-
-    print("Video file not found")
-
-    exit()
-
-
-
-# ------------------------------------------
-# دریافت اولین فریم
-# ------------------------------------------
-
-ret, previous_frame = video.read()
-
-
-
-# اگر اولین فریم خوانده نشد
-if not ret:
-
-    print("Cannot read video")
-
-    video.release()
-
-    exit()
-
-
-
-# ------------------------------------------
-# تغییر اندازه اولین فریم
-# ------------------------------------------
-
-previous_frame = cv2.resize(
-    previous_frame,
-    (
-        config.FRAME_WIDTH,
-        config.FRAME_HEIGHT
+    logger.info(
+        "Camera Mode Started"
     )
-)
 
+    cap = cv2.VideoCapture(
+        CAMERA_INDEX
+    )
 
+    if not cap.isOpened():
 
-# ------------------------------------------
-# ساخت شیء تشخیص حرکت
-# ------------------------------------------
+        logger.error(
+            "Cannot Open Camera"
+        )
 
-detector = MotionDetector(
-    config.MIN_AREA
-)
+        print("Camera error")
 
+        return
 
+    detector = MotionDetector(
+        MIN_AREA
+    )
 
-# ------------------------------------------
-# ساخت شیء ضبط ویدئو
-# ------------------------------------------
+    recorder = VideoRecorder(
+        OUTPUT_FOLDER
+    )
 
-recorder = VideoRecorder(
-    config.OUTPUT_FOLDER
-)
+    ret, previous_frame = cap.read()
 
-
-
-# وضعیت ضبط
-recording = False
-
-
-
-print("Video mode started")
-print("Press ESC to exit")
-
-
-
-# ==========================================
-# حلقه اصلی برنامه
-# ==========================================
-
-while True:
-
-
-    # دریافت فریم جدید
-    ret, frame = video.read()
-
-
-
-    # اگر ویدئو تمام شد
     if not ret:
 
-        print("Video finished")
-
-        break
-
-
-
-    # تغییر اندازه فریم
-    frame = cv2.resize(
-        frame,
-        (
-            config.FRAME_WIDTH,
-            config.FRAME_HEIGHT
+        logger.error(
+            "Cannot Read First Frame"
         )
-    )
+        
+        print("Camera detected but cannot provide frames")
 
+        return
 
+    while True:
 
-    # تشخیص حرکت
-    output, motion = detector.detect(
-        previous_frame,
-        frame
-    )
+        ret, current_frame = cap.read()
 
+        if not ret:
 
-
-    # --------------------------------------
-    # اگر حرکت تشخیص داده شد
-    # --------------------------------------
-
-    if motion:
-
-
-        # اگر هنوز ضبط شروع نشده
-        if not recording:
-
-
-            # شروع ضبط
-            recorder.start(
-                output
+            logger.error(
+                "Cannot Read Camera Frame"
             )
 
+            break
 
-            recording = True
-
-
-
-        # ذخیره فریم
-        recorder.write(
-            output
+        processed_frame, motion_detected = detector.detect(
+            previous_frame,
+            current_frame
         )
 
+        if motion_detected:
 
+            logger.info(
+                "Motion Detected"
+            )
 
-        # نمایش متن روی تصویر
-        cv2.putText(
-            output,
-            "Motion Detected",
-            (20, 40),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 0, 255),
-            2
+            if not recorder.recording:
+
+                logger.info(
+                    "Recording Started"
+                )
+
+                recorder.start(
+                    current_frame
+                )
+
+        if recorder.recording:
+
+            recorder.write(
+                current_frame
+            )
+
+        cv2.imshow(
+            "Motion Detection",
+            processed_frame
         )
 
+        key = cv2.waitKey(1)
 
+        if key == ord("q"):
 
-    # --------------------------------------
-    # اگر حرکتی وجود نداشت
-    # --------------------------------------
+            logger.info(
+                "Program Closed By User"
+            )
 
-    else:
+            break
 
+        previous_frame = current_frame.copy()
 
-        # اگر قبلاً ضبط انجام می‌شد
-        if recording:
+    if recorder.recording:
 
+        recorder.stop()
 
-            # پایان ضبط
-            recorder.stop()
+    cap.release()
 
+    cv2.destroyAllWindows()
 
-            recording = False
-
-
-
-    # --------------------------------------
-    # نمایش تصویر
-    # --------------------------------------
-
-    cv2.imshow(
-        "Video Surveillance",
-        output
+    logger.info(
+        "Camera Mode Closed"
     )
 
 
-
-    # فریم فعلی برای مقایسه در مرحله بعد
-    previous_frame = frame.copy()
-
-
-
-    # خروج با کلید ESC
-    if cv2.waitKey(25) & 0xFF == 27:
-
-        break
-
-
-
-# ==========================================
-# آزاد کردن منابع
-# ==========================================
-
-
-# اگر هنوز در حال ضبط بود
-if recording:
-
-    recorder.stop()
-
-
-
-# آزاد کردن فایل ویدئویی
-video.release()
-
-
-
-# بستن تمام پنجره‌ها
-cv2.destroyAllWindows()
-
-
-
-print("Program stopped")
+if __name__ == "__main__":
+    main()

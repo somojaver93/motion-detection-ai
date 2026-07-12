@@ -8,10 +8,8 @@ import time
 import os
 
 
-
-# کلاس ضبط ویدئو (Video Recorder)
+# کلاس ضبط ویدئو
 class VideoRecorder:
-
 
     # سازنده کلاس
     def __init__(self, output_folder):
@@ -19,28 +17,21 @@ class VideoRecorder:
         # مسیر ذخیره ویدئوها
         self.output_folder = output_folder
 
-
-        # اگر پوشه وجود نداشت، آن را بساز
+        # اگر پوشه وجود نداشت آن را بساز
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
-
-
-        # در ابتدا ضبط‌ کننده نداریم
+        # شیء ذخیره کننده ویدئو
         self.writer = None
 
+        # وضعیت ضبط
+        self.recording = False
 
-
-    # شروع ضبط ویدئو
+    # شروع ضبط
     def start(self, frame):
 
-
-        # گرفتن اندازه فریم
         height, width, _ = frame.shape
 
-
-
-        # ساخت نام فایل با زمان فعلی
         filename = (
             self.output_folder
             + "motion_"
@@ -48,16 +39,8 @@ class VideoRecorder:
             + ".avi"
         )
 
+        fourcc = cv2.VideoWriter_fourcc(*"XVID")
 
-
-        # کد فشرده‌سازی ویدئو
-        fourcc = cv2.VideoWriter_fourcc(
-            *"XVID"
-        )
-
-
-
-        # ایجاد شیء ذخیره ویدئو
         self.writer = cv2.VideoWriter(
             filename,
             fourcc,
@@ -65,39 +48,29 @@ class VideoRecorder:
             (width, height)
         )
 
-
+        self.recording = True
 
         print(
             "Recording started:",
             filename
         )
 
-
-
-    # اضافه کردن فریم به ویدئو
+    # نوشتن فریم
     def write(self, frame):
 
-        # اگر ضبط فعال بود
         if self.writer:
-
             self.writer.write(frame)
-
-
 
     # توقف ضبط
     def stop(self):
 
-        # اگر ضبط ‌کننده وجود داشت
         if self.writer:
 
-
-            # آزاد کردن فایل ویدئو
             self.writer.release()
 
-
-            # خالی کردن مقدار
             self.writer = None
 
+            self.recording = False
 
             print(
                 "Recording stopped"

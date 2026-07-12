@@ -1,135 +1,151 @@
-# کتابخانه OpenCV
+# ==========================================
+# Import Libraries
+# ==========================================
+
 import cv2
 
-
-import config
-
+from config import (
+    VIDEO_PATH,
+    OUTPUT_FOLDER,
+    MIN_AREA,
+    SCREENSHOT_FOLDER
+)
 
 from src.detector import MotionDetector
-
 from src.recorder import VideoRecorder
+from src.screenshot import ScreenshotManager
+
+from utils.logger import logger
 
 
+# ==========================================
+# Main Function
+# ==========================================
 
-# باز کردن فایل ویدئو
-video = cv2.VideoCapture(
-    config.VIDEO_PATH
-)
+def main():
 
+    logger.info("Program Started")
 
+    cap = cv2.VideoCapture(VIDEO_PATH)
 
-detector = MotionDetector(
-    config.MIN_AREA
-)
+    if not cap.isOpened():
 
+        logger.error(
+            "Cannot Open Video File"
+        )
 
-recorder = VideoRecorder(
-    config.OUTPUT_FOLDER
-)
+        print("Video error")
 
+        return
 
-
-ret, previous_frame = video.read()
-
-# چند فریم اول برای پایدار شدن تصویر رد می‌شوند
-for i in range(10):
-
-    video.read()
-
-
-
-if not ret:
-
-    print("Video error")
-
-    exit()
-
-
-
-previous_frame = cv2.resize(
-    previous_frame,
-    (
-        config.FRAME_WIDTH,
-        config.FRAME_HEIGHT
+    detector = MotionDetector(
+        MIN_AREA
     )
-)
 
+    recorder = VideoRecorder(
+        OUTPUT_FOLDER
+    )
 
+    screenshot_manager = ScreenshotManager(
+    SCREENSHOT_FOLDER
+    )
 
-recording = False
-
-
-
-while True:
-
-
-    ret, frame = video.read()
-
+    # خواندن اولین فریم
+    ret, previous_frame = cap.read()
 
     if not ret:
-        break
 
-
-
-    frame = cv2.resize(
-        frame,
-        (
-            config.FRAME_WIDTH,
-            config.FRAME_HEIGHT
+        logger.error(
+            "Cannot Read First Frame"
         )
+
+        return
+
+    while True:
+
+        ret, current_frame = cap.read()
+
+        if not ret:
+
+            logger.info(
+                "Video Finished"
+            )
+
+            break
+
+        processed_frame, motion_detected = detector.detect(
+            previous_frame,
+            current_frame
+        )
+
+        if motion_detected:
+
+         if not recorder.recording:
+
+           logger.info(
+              "Motion Detected"
+           )
+
+           screenshot_manager.save(
+               current_frame
+           )
+
+           logger.info(
+              "Screenshot Saved"
+          )
+
+           recorder.start(
+              current_frame
+          )
+
+           logger.info(
+              "Recording Started"
+          )
+
+        if recorder.recording:
+
+            recorder.write(
+                current_frame
+            )
+
+        cv2.imshow(
+            "Motion Detection",
+            processed_frame
+        )
+
+        key = cv2.waitKey(30)
+
+        if key == ord("q"):
+
+            logger.info(
+                "Program Closed By User"
+            )
+
+            break
+
+        # فریم قبلی برای دور بعد
+        previous_frame = current_frame.copy()
+
+    if recorder.recording:
+
+        logger.info(
+            "Recording Stopped"
+        )
+
+        recorder.stop()
+
+    cap.release()
+
+    cv2.destroyAllWindows()
+
+    logger.info(
+        "Program Closed"
     )
 
 
+# ==========================================
+# Program Entry Point
+# ==========================================
 
-    output, motion = detector.detect(
-        previous_frame,
-        frame
-    )
-
-
-
-    if motion and output.shape[0] > 0:
-
-
-        if not recording:
-
-            recorder.start(output)
-
-            recording = True
-
-
-
-        recorder.write(output)
-
-
-
-    else:
-
-
-        if recording:
-
-            recorder.stop()
-
-            recording=False
-
-
-
-    cv2.imshow(
-        "Video Surveillance",
-        output
-    )
-
-
-
-    previous_frame = frame
-
-
-
-    if cv2.waitKey(25)==27:
-        break
-
-
-
-video.release()
-
-cv2.destroyAllWindows()
+if __name__ == "__main__":
+    main()
