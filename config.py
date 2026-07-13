@@ -28,3 +28,16 @@ VIDEO_PATH = "videos/test.mp4"
 
 # مسیر ذخیره اسکرین‌شات‌ها
 SCREENSHOT_FOLDER = "screenshots/"
+
+# ==============================
+# Email Settings
+# ==============================
+
+EMAIL_SENDER = "mojavers72@gmail.com"
+
+EMAIL_PASSWORD = "papvipxntvaqdnms"
+
+EMAIL_RECEIVER = "mojavers72@gmail.com"
+
+# مسیر فایل ذخیره رویدادها
+EVENT_FILE = "events/motion_events.json"

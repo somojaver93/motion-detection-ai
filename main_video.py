@@ -2,19 +2,31 @@
 # Import Libraries
 # ==========================================
 
+# کتابخانه OpenCV
 import cv2
 
+# تنظیمات پروژه
 from config import (
     VIDEO_PATH,
     OUTPUT_FOLDER,
     MIN_AREA,
-    SCREENSHOT_FOLDER
+    SCREENSHOT_FOLDER,
+    EVENT_FILE
 )
 
+# ماژول تشخیص حرکت
 from src.detector import MotionDetector
+
+# ماژول ضبط ویدئو
 from src.recorder import VideoRecorder
+
+# ماژول ذخیره اسکرین‌شات
 from src.screenshot import ScreenshotManager
 
+# ماژول ثبت رویدادها
+from src.event_manager import EventManager
+
+# سیستم لاگ
 from utils.logger import logger
 
 
@@ -24,30 +36,47 @@ from utils.logger import logger
 
 def main():
 
-    logger.info("Program Started")
+    # ثبت شروع برنامه
+    logger.info(
+        "Program Started"
+    )
 
-    cap = cv2.VideoCapture(VIDEO_PATH)
+    # باز کردن فایل ویدئویی
+    cap = cv2.VideoCapture(
+        VIDEO_PATH
+    )
 
+    # بررسی باز شدن فایل
     if not cap.isOpened():
 
         logger.error(
             "Cannot Open Video File"
         )
 
-        print("Video error")
+        print(
+            "Video error"
+        )
 
         return
 
+    # ساخت شیء تشخیص حرکت
     detector = MotionDetector(
         MIN_AREA
     )
 
+    # ساخت شیء ضبط ویدئو
     recorder = VideoRecorder(
         OUTPUT_FOLDER
     )
 
+    # ساخت شیء اسکرین‌شات
     screenshot_manager = ScreenshotManager(
-    SCREENSHOT_FOLDER
+        SCREENSHOT_FOLDER
+    )
+
+    # ساخت شیء مدیریت رویدادها
+    event_manager = EventManager(
+        EVENT_FILE
     )
 
     # خواندن اولین فریم
@@ -61,10 +90,16 @@ def main():
 
         return
 
+    # ==========================================
+    # حلقه اصلی برنامه
+    # ==========================================
+
     while True:
 
+        # خواندن فریم جدید
         ret, current_frame = cap.read()
 
+        # پایان ویدئو
         if not ret:
 
             logger.info(
@@ -73,34 +108,58 @@ def main():
 
             break
 
+        # تشخیص حرکت
         processed_frame, motion_detected = detector.detect(
             previous_frame,
             current_frame
         )
 
+        # ==========================================
+        # در صورت تشخیص حرکت
+        # ==========================================
+
         if motion_detected:
 
-         if not recorder.recording:
+            # اگر هنوز ضبط شروع نشده
+            if not recorder.recording:
 
-           logger.info(
-              "Motion Detected"
-           )
+                logger.info(
+                    "Motion Detected"
+                )
 
-           screenshot_manager.save(
-               current_frame
-           )
+                # ذخیره اسکرین‌شات
+                screenshot_path = (
+                    screenshot_manager.save(
+                        current_frame
+                    )
+                )
 
-           logger.info(
-              "Screenshot Saved"
-          )
+                logger.info(
+                    "Screenshot Saved"
+                )
 
-           recorder.start(
-              current_frame
-          )
+                # شروع ضبط و دریافت مسیر فایل
+                video_path = recorder.start(
+                    current_frame
+                )
 
-           logger.info(
-              "Recording Started"
-          )
+                logger.info(
+                    "Recording Started"
+                )
+
+                # ثبت رویداد در JSON
+                event_manager.save_event(
+                    screenshot_path,
+                    video_path
+                )
+
+                logger.info(
+                    "Event Saved"
+                )
+
+        # ==========================================
+        # ذخیره فریم‌ها هنگام ضبط
+        # ==========================================
 
         if recorder.recording:
 
@@ -108,13 +167,21 @@ def main():
                 current_frame
             )
 
+        # ==========================================
+        # نمایش تصویر
+        # ==========================================
+
         cv2.imshow(
             "Motion Detection",
             processed_frame
         )
 
-        key = cv2.waitKey(30)
+        # دریافت کلید فشرده شده
+        key = cv2.waitKey(
+            30
+        )
 
+        # خروج با q
         if key == ord("q"):
 
             logger.info(
@@ -123,17 +190,25 @@ def main():
 
             break
 
-        # فریم قبلی برای دور بعد
-        previous_frame = current_frame.copy()
+        # بروزرسانی فریم قبلی
+        previous_frame = (
+            current_frame.copy()
+        )
 
+    # ==========================================
+    # پایان برنامه
+    # ==========================================
+
+    # توقف ضبط در صورت فعال بودن
     if recorder.recording:
+
+        recorder.stop()
 
         logger.info(
             "Recording Stopped"
         )
 
-        recorder.stop()
-
+    # آزادسازی منابع
     cap.release()
 
     cv2.destroyAllWindows()
@@ -148,4 +223,5 @@ def main():
 # ==========================================
 
 if __name__ == "__main__":
+
     main()

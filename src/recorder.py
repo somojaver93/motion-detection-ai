@@ -11,13 +11,14 @@ import os
 # کلاس ضبط ویدئو
 class VideoRecorder:
 
+
     # سازنده کلاس
     def __init__(self, output_folder):
 
         # مسیر ذخیره ویدئوها
         self.output_folder = output_folder
 
-        # اگر پوشه وجود نداشت آن را بساز
+        # ساخت پوشه در صورت نبودن
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
@@ -27,11 +28,17 @@ class VideoRecorder:
         # وضعیت ضبط
         self.recording = False
 
+        # مسیر آخرین ویدئوی ذخیره شده
+        self.video_path = None
+
+
     # شروع ضبط
     def start(self, frame):
 
+        # ابعاد تصویر
         height, width, _ = frame.shape
 
+        # ساخت نام فایل
         filename = (
             self.output_folder
             + "motion_"
@@ -39,8 +46,15 @@ class VideoRecorder:
             + ".avi"
         )
 
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        # ذخیره مسیر فایل
+        self.video_path = filename
 
+        # کدک ویدئو
+        fourcc = cv2.VideoWriter_fourcc(
+            *"XVID"
+        )
+
+        # ایجاد فایل ویدئو
         self.writer = cv2.VideoWriter(
             filename,
             fourcc,
@@ -55,11 +69,17 @@ class VideoRecorder:
             filename
         )
 
-    # نوشتن فریم
+        # برگرداندن مسیر فایل
+        return filename
+
+
+    # ذخیره فریم
     def write(self, frame):
 
         if self.writer:
+
             self.writer.write(frame)
+
 
     # توقف ضبط
     def stop(self):
@@ -75,3 +95,9 @@ class VideoRecorder:
             print(
                 "Recording stopped"
             )
+
+
+    # دریافت مسیر آخرین ویدئو
+    def get_video_path(self):
+
+        return self.video_path
