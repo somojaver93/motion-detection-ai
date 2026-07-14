@@ -52,7 +52,7 @@ class DatabaseManager:
 
         )
 
-        # ایجاد Cursor
+        # ساخت Cursor
         cursor = connection.cursor()
 
 
@@ -101,7 +101,7 @@ class DatabaseManager:
 
         )
 
-        # ایجاد Cursor
+        # ساخت Cursor
         cursor = connection.cursor()
 
 
@@ -163,16 +163,21 @@ class DatabaseManager:
 
         )
 
-        # ایجاد Cursor
+        # ساخت Cursor
         cursor = connection.cursor()
 
 
         # دریافت همه رکوردها
         cursor.execute(
 
-            "SELECT * FROM events"
+            """
+            SELECT *
+            FROM events
+            ORDER BY id ASC
+            """
 
         )
+
 
         events = cursor.fetchall()
 
@@ -206,14 +211,20 @@ class DatabaseManager:
         # شمارش رکوردها
         cursor.execute(
 
-            "SELECT COUNT(*) FROM events"
+            """
+            SELECT COUNT(*)
+            FROM events
+            """
 
         )
+
 
         count = cursor.fetchone()[0]
 
 
+        # بستن اتصال
         connection.close()
+
 
         return count
 
@@ -249,9 +260,138 @@ class DatabaseManager:
 
         )
 
+
         event = cursor.fetchone()
 
 
+        # بستن اتصال
         connection.close()
 
+
         return event
+
+
+    # --------------------------------------
+    # دریافت رویداد بر اساس شناسه
+    # --------------------------------------
+    def get_event_by_id(
+
+        self,
+        event_id
+
+    ):
+
+        # اتصال به دیتابیس
+        connection = sqlite3.connect(
+
+            self.database_file
+
+        )
+
+        cursor = connection.cursor()
+
+
+        # جستجوی رویداد
+        cursor.execute(
+
+            """
+            SELECT *
+            FROM events
+            WHERE id = ?
+            """,
+
+            (
+                event_id,
+            )
+
+        )
+
+
+        event = cursor.fetchone()
+
+
+        # بستن اتصال
+        connection.close()
+
+
+        return event
+
+
+    # --------------------------------------
+    # حذف رویداد
+    # --------------------------------------
+    def delete_event(
+
+        self,
+        event_id
+
+    ):
+
+        # اتصال به دیتابیس
+        connection = sqlite3.connect(
+
+            self.database_file
+
+        )
+
+        cursor = connection.cursor()
+
+
+        # حذف رکورد
+        cursor.execute(
+
+            """
+            DELETE FROM events
+            WHERE id = ?
+            """,
+
+            (
+                event_id,
+            )
+
+        )
+
+
+        # ذخیره تغییرات
+        connection.commit()
+
+
+        # بستن اتصال
+        connection.close()
+
+
+    # --------------------------------------
+    # حذف همه رویدادها
+    # --------------------------------------
+    def delete_all_events(
+
+        self
+
+    ):
+
+        # اتصال به دیتابیس
+        connection = sqlite3.connect(
+
+            self.database_file
+
+        )
+
+        cursor = connection.cursor()
+
+
+        # حذف همه رکوردها
+        cursor.execute(
+
+            """
+            DELETE FROM events
+            """
+
+        )
+
+
+        # ذخیره تغییرات
+        connection.commit()
+
+
+        # بستن اتصال
+        connection.close()
