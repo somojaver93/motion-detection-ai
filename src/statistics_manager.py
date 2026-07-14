@@ -4,13 +4,12 @@
 # ==========================================
 
 
-# خواندن فایل JSON
-import json
+# مدیریت دیتابیس
+from src.database_manager import (
+    DatabaseManager
+)
 
-# مدیریت فایل‌ها
-import os
-
-# کار با تاریخ و زمان
+# زمان
 from datetime import datetime
 
 
@@ -26,51 +25,28 @@ class StatisticsManager:
     def __init__(
 
         self,
-        event_file
+        database_file
 
     ):
 
-        # مسیر فایل رویدادها
-        self.event_file = event_file
+        # شیء دیتابیس
+        self.database = DatabaseManager(
+
+            database_file
+
+        )
 
 
     # --------------------------------------
-    # خواندن همه رویدادها
+    # دریافت همه رویدادها
     # --------------------------------------
-    def load_events(self):
+    def load_events(
 
-        # اگر فایل وجود نداشت
-        if not os.path.exists(
+        self
 
-            self.event_file
+    ):
 
-        ):
-
-            return []
-
-
-
-        # باز کردن فایل JSON
-        with open(
-
-            self.event_file,
-
-            "r",
-
-            encoding="utf-8"
-
-        ) as file:
-
-
-            # تبدیل JSON به لیست پایتون
-            events = json.load(
-
-                file
-
-            )
-
-
-        return events
+        return self.database.get_events()
 
 
     # --------------------------------------
@@ -82,16 +58,7 @@ class StatisticsManager:
 
     ):
 
-        # دریافت رویدادها
-        events = self.load_events()
-
-
-        # تعداد رکوردها
-        return len(
-
-            events
-
-        )
+        return self.database.count_events()
 
 
     # --------------------------------------
@@ -103,24 +70,10 @@ class StatisticsManager:
 
     ):
 
-        # دریافت رویدادها
-        events = self.load_events()
+        return self.database.get_last_event()
 
 
-        # اگر هیچ رویدادی وجود نداشت
-        if len(
-
-            events
-
-        ) == 0:
-
-            return None
-
-
-        # آخرین عنصر لیست
-        return events[-1]
-    
-        # --------------------------------------
+    # --------------------------------------
     # تعداد رویدادهای امروز
     # --------------------------------------
     def today_events(
@@ -129,20 +82,17 @@ class StatisticsManager:
 
     ):
 
-        # دریافت همه رویدادها
         events = self.load_events()
 
-        # تاریخ امروز
         today = datetime.now().date()
 
         count = 0
 
-        # بررسی همه رویدادها
         for event in events:
 
             event_date = datetime.fromisoformat(
 
-                event["time"]
+                event[1]
 
             ).date()
 
@@ -151,8 +101,9 @@ class StatisticsManager:
                 count += 1
 
         return count
-    
-        # --------------------------------------
+
+
+    # --------------------------------------
     # تعداد رویدادهای هفته جاری
     # --------------------------------------
     def week_events(
@@ -171,7 +122,7 @@ class StatisticsManager:
 
             event_time = datetime.fromisoformat(
 
-                event["time"]
+                event[1]
 
             )
 
@@ -186,8 +137,9 @@ class StatisticsManager:
                 count += 1
 
         return count
-    
-        # --------------------------------------
+
+
+    # --------------------------------------
     # تعداد رویدادهای ماه جاری
     # --------------------------------------
     def month_events(
@@ -208,7 +160,7 @@ class StatisticsManager:
 
             event_time = datetime.fromisoformat(
 
-                event["time"]
+                event[1]
 
             )
 
@@ -225,5 +177,3 @@ class StatisticsManager:
                 count += 1
 
         return count
-    
-    

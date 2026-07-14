@@ -4,7 +4,7 @@
 
 
 # مسیر فایل رویدادها
-from config import EVENT_FILE
+from config import DATABASE_FILE
 
 
 # کلاس مدیریت آمار
@@ -18,9 +18,7 @@ from src.statistics_manager import (
 # ==========================================
 
 stats = StatisticsManager(
-
-    EVENT_FILE
-
+    DATABASE_FILE
 )
 
 
