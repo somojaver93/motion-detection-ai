@@ -19,5 +19,4 @@ database = DatabaseManager(
 print(
 
     "Database Created Successfully"
-
 )

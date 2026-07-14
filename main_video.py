@@ -11,7 +11,8 @@ from config import (
     OUTPUT_FOLDER,
     MIN_AREA,
     SCREENSHOT_FOLDER,
-    EVENT_FILE
+    EVENT_FILE,
+    DATABASE_FILE
 )
 
 # ماژول تشخیص حرکت
@@ -24,10 +25,12 @@ from src.recorder import VideoRecorder
 from src.screenshot import ScreenshotManager
 
 # ماژول ثبت رویدادها
-from src.event_manager import EventManager
+##from src.event_manager import EventManager
 
 # سیستم لاگ
 from utils.logger import logger
+
+from src.database_manager import DatabaseManager
 
 
 # ==========================================
@@ -74,9 +77,9 @@ def main():
         SCREENSHOT_FOLDER
     )
 
-    # ساخت شیء مدیریت رویدادها
-    event_manager = EventManager(
-        EVENT_FILE
+    # ساخت شیء دیتابیس
+    database = DatabaseManager(
+        DATABASE_FILE
     )
 
     # خواندن اولین فریم
@@ -147,10 +150,8 @@ def main():
                     "Recording Started"
                 )
 
-                # ثبت رویداد در JSON
-                event_manager.save_event(
-                    screenshot_path,
-                    video_path
+                database.insert_event(
+                  screenshot_path
                 )
 
                 logger.info(
