@@ -41,3 +41,6 @@ EMAIL_RECEIVER = "mojavers72@gmail.com"
 
 # مسیر فایل ذخیره رویدادها
 EVENT_FILE = "events/motion_events.json"
+
+# مسیر دیتابیس SQLite
+DATABASE_FILE = "motion.db"
