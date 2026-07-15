@@ -395,3 +395,100 @@ class DatabaseManager:
 
         # بستن اتصال
         connection.close()
+
+
+        # --------------------------------------
+    # دریافت رویدادهای یک روز خاص
+    # --------------------------------------
+    def get_events_by_date(
+
+        self,
+        target_date
+
+    ):
+
+        # اتصال به دیتابیس
+        connection = sqlite3.connect(
+
+            self.database_file
+
+        )
+
+        cursor = connection.cursor()
+
+
+        # جستجوی رویدادها
+        cursor.execute(
+
+            """
+            SELECT *
+            FROM events
+            WHERE DATE(time) = ?
+            ORDER BY id ASC
+            """,
+
+            (
+                target_date,
+            )
+
+        )
+
+
+        events = cursor.fetchall()
+
+
+        # بستن اتصال
+        connection.close()
+
+
+        return events
+    
+
+        # --------------------------------------
+    # دریافت رویدادها بین دو تاریخ
+    # --------------------------------------
+    def get_events_between_dates(
+
+        self,
+        start_date,
+        end_date
+
+    ):
+
+        # اتصال به دیتابیس
+        connection = sqlite3.connect(
+
+            self.database_file
+
+        )
+
+        cursor = connection.cursor()
+
+
+        # جستجو بین دو تاریخ
+        cursor.execute(
+
+            """
+            SELECT *
+            FROM events
+            WHERE DATE(time)
+            BETWEEN ? AND ?
+            ORDER BY id ASC
+            """,
+
+            (
+                start_date,
+                end_date
+            )
+
+        )
+
+
+        events = cursor.fetchall()
+
+
+        # بستن اتصال
+        connection.close()
+
+
+        return events
