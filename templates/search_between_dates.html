@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+
+        Search Between Dates
+
+    </title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-4">
+
+    <!-- عنوان -->
+    <h1>
+
+        Search Events Between Dates
+
+    </h1>
+
+    <hr>
+
+    <!-- فرم جستجو -->
+    <form>
+
+        <div class="mb-3">
+
+            <label class="form-label">
+
+                Start Date
+
+            </label>
+
+            <input
+
+                type="date"
+
+                name="start_date"
+
+                class="form-control"
+
+            >
+
+        </div>
+
+        <div class="mb-3">
+
+            <label class="form-label">
+
+                End Date
+
+            </label>
+
+            <input
+
+                type="date"
+
+                name="end_date"
+
+                class="form-control"
+
+            >
+
+        </div>
+
+        <button
+
+            type="submit"
+
+            class="btn btn-primary"
+
+        >
+
+            Search
+
+        </button>
+
+    </form>
+
+    <hr>
+
+    {% if events %}
+
+    <table class="table table-striped">
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>Time</th>
+
+                <th>Screenshot</th>
+
+                <th>Video</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for event in events %}
+
+            <tr>
+
+                <td>{{ event[0] }}</td>
+
+                <td>{{ event[1] }}</td>
+
+                <td>{{ event[2] }}</td>
+
+                <td>{{ event[3] }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>

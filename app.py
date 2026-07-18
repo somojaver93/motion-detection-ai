@@ -232,6 +232,51 @@ def export_csv():
 
     )
 
+
+# ==========================================
+# جستجو بین دو تاریخ
+# ==========================================
+@app.route(
+
+    "/search_between_dates"
+
+)
+def search_between_dates():
+
+    # دریافت تاریخ شروع
+    start_date = request.args.get(
+
+        "start_date"
+
+    )
+
+    # دریافت تاریخ پایان
+    end_date = request.args.get(
+
+        "end_date"
+
+    )
+
+    events = []
+
+    # اگر هر دو تاریخ وارد شده باشند
+    if start_date and end_date:
+
+        events = database.get_events_between_dates(
+
+            start_date,
+            end_date
+
+        )
+
+    return render_template(
+
+        "search_between_dates.html",
+
+        events=events
+
+    )
+
 # ==========================================
 # صفحه اصلی داشبورد
 # ==========================================
