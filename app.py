@@ -9,7 +9,8 @@ from flask import (
 
     Flask,
     render_template,
-    send_from_directory
+    send_from_directory,
+    request
 
 )
 
@@ -101,6 +102,42 @@ def recording_file(
         "recordings",
 
         filename
+
+    )
+
+# ==========================================
+# جستجو بر اساس ID
+# ==========================================
+@app.route(
+
+    "/search"
+
+)
+def search():
+
+    # دریافت ID از URL
+    event_id = request.args.get(
+
+        "event_id"
+
+    )
+
+    event = None
+
+    # اگر مقداری وارد شده باشد
+    if event_id:
+
+        event = database.get_event_by_id(
+
+            int(event_id)
+
+        )
+
+    return render_template(
+
+        "search.html",
+
+        event=event
 
     )
 
