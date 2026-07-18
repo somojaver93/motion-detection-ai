@@ -6,10 +6,8 @@
 
 # فریم‌ورک Flask
 from flask import (
-
-    Flask,
+     Flask,
     render_template
-
 )
 
 # فایل تنظیمات پروژه
@@ -18,6 +16,11 @@ from config import DATABASE_FILE
 # مدیریت آمار
 from src.statistics_manager import (
     StatisticsManager
+)
+
+# مدیریت دیتابیس
+from src.database_manager import (
+    DatabaseManager
 )
 
 
@@ -42,6 +45,15 @@ stats = StatisticsManager(
 
 )
 
+# اتصال به دیتابیس
+database = DatabaseManager(
+
+    DATABASE_FILE
+
+)
+
+
+
 
 # ==========================================
 # صفحه اصلی
@@ -64,6 +76,9 @@ def home():
     # آخرین رویداد
     last_event = stats.last_event()
 
+    # دریافت همه رویدادها
+    events = database.get_all_events()
+
 
     # ارسال اطلاعات به فایل HTML
     return render_template(
@@ -78,7 +93,9 @@ def home():
 
         month_events=month_events,
 
-        last_event=last_event
+        last_event=last_event,
+
+        events=events
 
     )
 

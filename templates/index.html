@@ -66,6 +66,62 @@
 
     </h2>
 
+    <hr>
+
+<h2>
+
+    Events Table
+
+</h2>
+
+<table border="1">
+
+    <tr>
+
+        <th>ID</th>
+
+        <th>Time</th>
+
+        <th>Screenshot</th>
+
+        <th>Video</th>
+
+    </tr>
+
+    {% for event in events %}
+
+    <tr>
+
+        <td>
+
+            {{ event[0] }}
+
+        </td>
+
+        <td>
+
+            {{ event[1] }}
+
+        </td>
+
+        <td>
+
+            {{ event[2] }}
+
+        </td>
+
+        <td>
+
+            {{ event[3] }}
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
     <p>
 
         {{ last_event }}
