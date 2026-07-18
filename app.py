@@ -6,8 +6,11 @@
 
 # فریم‌ورک Flask
 from flask import (
-     Flask,
-    render_template
+
+    Flask,
+    render_template,
+    send_from_directory
+
 )
 
 # فایل تنظیمات پروژه
@@ -45,7 +48,11 @@ stats = StatisticsManager(
 
 )
 
+
+# ==========================================
 # اتصال به دیتابیس
+# ==========================================
+
 database = DatabaseManager(
 
     DATABASE_FILE
@@ -53,10 +60,31 @@ database = DatabaseManager(
 )
 
 
+# ==========================================
+# نمایش فایل‌های Screenshot
+# ==========================================
+@app.route(
+
+    "/screenshots/<path:filename>"
+
+)
+def screenshot_file(
+
+    filename
+
+):
+
+    return send_from_directory(
+
+        "screenshots",
+
+        filename
+
+    )
 
 
 # ==========================================
-# صفحه اصلی
+# صفحه اصلی داشبورد
 # ==========================================
 @app.route("/")
 def home():
@@ -78,7 +106,6 @@ def home():
 
     # دریافت همه رویدادها
     events = database.get_all_events()
-
 
     # ارسال اطلاعات به فایل HTML
     return render_template(
