@@ -7,10 +7,11 @@
 # فریم‌ورک Flask
 from flask import (
 
-    Flask,
+     Flask,
     render_template,
     send_from_directory,
-    request
+    request,
+    redirect
 
 )
 
@@ -175,6 +176,35 @@ def search_date():
         "search_date.html",
 
         events=events
+
+    )
+
+
+# ==========================================
+# حذف رویداد
+# ==========================================
+@app.route(
+
+    "/delete/<int:event_id>"
+
+)
+def delete_event(
+
+    event_id
+
+):
+
+    # حذف رویداد از دیتابیس
+    database.delete_event(
+
+        event_id
+
+    )
+
+    # بازگشت به صفحه اصلی
+    return redirect(
+
+        "/"
 
     )
 
