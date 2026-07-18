@@ -143,6 +143,43 @@ def search():
 
 
 # ==========================================
+# جستجو بر اساس تاریخ
+# ==========================================
+@app.route(
+
+    "/search_date"
+
+)
+def search_date():
+
+    # دریافت تاریخ از فرم
+    target_date = request.args.get(
+
+        "target_date"
+
+    )
+
+    events = []
+
+    # اگر تاریخ وارد شده باشد
+    if target_date:
+
+        events = database.get_events_by_date(
+
+            target_date
+
+        )
+
+    return render_template(
+
+        "search_date.html",
+
+        events=events
+
+    )
+
+
+# ==========================================
 # صفحه اصلی داشبورد
 # ==========================================
 @app.route("/")
