@@ -5,7 +5,12 @@
 
 
 # فریم‌ورک Flask
-from flask import Flask
+from flask import (
+
+    Flask,
+    render_template
+
+)
 
 # فایل تنظیمات پروژه
 from config import DATABASE_FILE
@@ -60,32 +65,22 @@ def home():
     last_event = stats.last_event()
 
 
-    # ساخت صفحه HTML
-    html = f"""
+    # ارسال اطلاعات به فایل HTML
+    return render_template(
 
-    <h1>Motion Detection Dashboard</h1>
+        "index.html",
 
-    <hr>
+        total_events=total_events,
 
-    <h2>Statistics</h2>
+        today_events=today_events,
 
-    <p>Total Events: {total_events}</p>
+        week_events=week_events,
 
-    <p>Today Events: {today_events}</p>
+        month_events=month_events,
 
-    <p>Week Events: {week_events}</p>
+        last_event=last_event
 
-    <p>Month Events: {month_events}</p>
-
-    <hr>
-
-    <h2>Last Event</h2>
-
-    <p>{last_event}</p>
-
-    """
-
-    return html
+    )
 
 
 # ==========================================
