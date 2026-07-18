@@ -11,7 +11,8 @@ from flask import (
     render_template,
     send_from_directory,
     request,
-    redirect
+    redirect,
+    send_file
 
 )
 
@@ -208,6 +209,28 @@ def delete_event(
 
     )
 
+
+# ==========================================
+# دانلود فایل CSV
+# ==========================================
+@app.route(
+
+    "/export_csv"
+
+)
+def export_csv():
+
+    # مسیر فایل گزارش
+    csv_file = "events_report.csv"
+
+    # ارسال فایل برای دانلود
+    return send_file(
+
+        csv_file,
+
+        as_attachment=True
+
+    )
 
 # ==========================================
 # صفحه اصلی داشبورد
