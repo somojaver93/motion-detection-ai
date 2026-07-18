@@ -82,6 +82,28 @@ def screenshot_file(
 
     )
 
+# ==========================================
+# نمایش فایل‌های Video
+# ==========================================
+@app.route(
+
+    "/recordings/<path:filename>"
+
+)
+def recording_file(
+
+    filename
+
+):
+
+    return send_from_directory(
+
+        "recordings",
+
+        filename
+
+    )
+
 
 # ==========================================
 # صفحه اصلی داشبورد
